@@ -41,6 +41,8 @@ let comment: string -> HttpHandler = fun (id: string) (next: HttpFunc) (ctx: Htt
         return! json commentResponse next ctx
     }
 
+let health: HttpHandler = text "Healthy"
+
 let cardApiRouter = router {
     getf "/%s" getCard
     postf "/%s/comment" comment
@@ -48,6 +50,7 @@ let cardApiRouter = router {
 
 let webApp = router {
     forward "/api/cards" cardApiRouter
+    get "health" health
 }
 
 let app =

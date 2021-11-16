@@ -11,9 +11,6 @@ let sharedPath = Path.getFullName "src/Shared"
 let serverPath = Path.getFullName "src/Server"
 let clientPath = Path.getFullName "src/Client"
 let deployPath = Path.getFullName "deploy"
-let sharedTestsPath = Path.getFullName "tests/Shared"
-let serverTestsPath = Path.getFullName "tests/Server"
-let clientTestsPath = Path.getFullName "tests/Client"
 
 Target.create "Clean" (fun _ ->
     Shell.cleanDir deployPath
@@ -28,32 +25,43 @@ Target.create "Bundle" (fun _ ->
     |> runParallel
 )
 
-Target.create "Azure" (fun _ ->
-    let web = webApp {
-        name "software"
-        zip_deploy "deploy"
-    }
-    let deployment = arm {
-        location Location.WestEurope
-        add_resource web
-    }
+type Region = {
+    Name: string
+    Location: Location
+}
 
-    deployment
-    |> Deploy.execute "software" Deploy.NoParameters
-    |> ignore
+Target.create "Azure" (fun _ ->
+    let regions: Region list = [
+        {
+            Name = "clara-wcus"
+            Location = Location.WestCentralUS
+        }
+        {
+            Name = "clara-aue"
+            Location = Location.AustraliaEast
+        }]
+
+    let deployments = regions |> List.map (fun (region: Region) ->
+        arm {
+            location region.Location
+            add_resource (webApp {
+                name region.Name
+                zip_deploy "deploy"
+                sku (WebApp.Basic "B1")
+            })
+        })
+
+    deployments
+    |> List.iter (fun deployment ->
+        deployment
+        |> Deploy.execute "software" Deploy.NoParameters
+        |> ignore)
 )
 
 Target.create "Run" (fun _ ->
     run dotnet "build" sharedPath
     [ "server", dotnet "watch run" serverPath
       "client", dotnet "fable watch -o output -s --run webpack-dev-server" clientPath ]
-    |> runParallel
-)
-
-Target.create "RunTests" (fun _ ->
-    run dotnet "build" sharedTestsPath
-    [ "server", dotnet "watch run" serverTestsPath
-      "client", dotnet "fable watch -o output -s --run webpack-dev-server --config ../../webpack.tests.config.js" clientTestsPath ]
     |> runParallel
 )
 
@@ -72,9 +80,6 @@ let dependencies = [
     "Clean"
         ==> "InstallClient"
         ==> "Run"
-
-    "InstallClient"
-        ==> "RunTests"
 ]
 
 [<EntryPoint>]

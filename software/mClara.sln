@@ -23,7 +23,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Client", "src\Client\Client
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Build", "Build.fsproj", "{C0244434-EC34-4D74-93A9-0E00DEC0C4D1}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PowerShell", "src\PowerShell\PowerShell\PowerShell.fsproj", "{588B8832-DBA7-4C67-9F59-8FEB398C0E2C}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ClaraMgmt", "src\ClaraMgmt\ClaraMgmt.fsproj", "{588B8832-DBA7-4C67-9F59-8FEB398C0E2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
