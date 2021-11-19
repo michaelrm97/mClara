@@ -54,7 +54,7 @@ Target.create "Azure" (fun _ ->
     deployments
     |> List.iter (fun deployment ->
         deployment
-        |> Deploy.execute "software" Deploy.NoParameters
+        |> Deploy.execute "project-clara" Deploy.NoParameters
         |> ignore)
 )
 

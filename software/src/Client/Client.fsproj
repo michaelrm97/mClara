@@ -7,7 +7,10 @@
     <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
-        <Compile Include="Index.fs" />
+        <Compile Include="About.fs" />
+        <Compile Include="Card.fs" />
+        <Compile Include="Home.fs" />
+        <Compile Include="Router.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
     <ItemGroup>
