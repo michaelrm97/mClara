@@ -72,7 +72,11 @@ let comment: string -> HttpHandler = fun (id: string) (next: HttpFunc) (ctx: Htt
     task {
         let! commentRequest = Controller.getJson<CommentRequest> ctx
         let! commentResponse = cardsApi.comment id commentRequest
-        return! json commentResponse next ctx
+        match commentResponse with
+        | Ok c -> return! json c next ctx
+        | Error (status, e) ->
+            ctx.SetStatusCode status
+            return! json e next ctx
     }
 
 let health: HttpHandler = text "Healthy"

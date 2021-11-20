@@ -58,18 +58,20 @@ let private handleResult (result: Result<'T, FetchError>): Async<Result<'T, int 
             match Decode.fromString (Decode.Auto.generateDecoder<ErrorResponse> CaseStrategy.CamelCase) bodyText with
             | Ok e -> return Error (response.Status, e)
             | Error s -> return Error (response.Status, { ErrorCode = "Deserialization Error"; Message = s })
+        | PreparingRequestFailed exn -> return Error(0, { ErrorCode = "Preparing Request Failed"; Message = exn.Message })
+        | NetworkError exn -> return Error(0, { ErrorCode = "Network Error"; Message = exn.Message })
         | DecodingFailed s -> return Error (0, { ErrorCode = "Decoding Failed"; Message = s })
         | _ -> return Error (0, { ErrorCode = "Unknown Error"; Message = "Unknown Error" })
 }
 
 let private cardsApi: ICardApi = {
     getCard = fun (id: string) -> async {
-        let! result = Fetch.tryGet (sprintf "api/cards/%s" id, extra = extraCoders, decoder = cardResponseDecoder) |> Async.AwaitPromise
+        let! result = Fetch.tryGet (sprintf "/api/cards/%s" id, extra = extraCoders, decoder = cardResponseDecoder) |> Async.AwaitPromise
         return! handleResult result
     }
 
     comment = fun (id: string) (commentRequest: CommentRequest) -> async {
-        let! result = Fetch.tryGet (sprintf "api/cards/%s/comment" id, commentRequest, caseStrategy = CaseStrategy.CamelCase) |> Async.AwaitPromise
+        let! result = Fetch.tryPost (sprintf "/api/cards/%s/comment" id, commentRequest, caseStrategy = CaseStrategy.CamelCase) |> Async.AwaitPromise
         return! handleResult result
     }
 }    
@@ -93,6 +95,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | SetInput value ->
         { model with Input = value }, Cmd.none
     | Comment ->
+        printfn "You are here"
         let req = { Comment = model.Input }
         let cmd =
             Cmd.OfAsync.perform (cardsApi.comment model.Id) req Commented
@@ -104,7 +107,8 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
             { model with Card =
                             (match model.Card with
                             | None -> None
-                            | Some m -> Some { m with CommentLastModified = Nullable c.CommentLastModified }) }
+                            | Some m -> Some {
+                                m with CommentLastModified = Nullable c.CommentLastModified; Comment = model.Input }) }
         | Error (status, e) ->
             printfn "Received error response: %d %s" status e.Message
             model), Cmd.none

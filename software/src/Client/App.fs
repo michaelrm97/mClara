@@ -15,26 +15,37 @@ type Page =
     | About
     | Card of Card.Model
 
+type Route =
+    | Home
+    | About
+    | Card of string
+
 type Model =
     { ActivePage : Page
-      CurrentRoute : Router.Route }
+      CurrentRoute: Route }
 
 type Msg =
     | CardMsg of Card.Msg
 
-let private setRoute (optRoute: Router.Route option) (model: Model) =
+let parser =
+    oneOf [ map Card (s "cards" </> str)
+            map About (s "about")
+            map Home (s "home") ]
+    |> parsePath
+
+let private setRoute (optRoute: Route option) (model: Model) =
     match optRoute with
-    | Some (Router.Card id) ->
+    | Some (Card id) ->
         let (cardModel, cardCmd) = Card.init id
         { CurrentRoute = optRoute.Value; ActivePage = Page.Card cardModel }, Cmd.map CardMsg cardCmd
-    | Some Router.About -> { CurrentRoute = optRoute.Value; ActivePage = Page.About }, Cmd.none
-    | Some Router.Home -> { CurrentRoute = optRoute.Value; ActivePage = Page.Home }, Cmd.none
+    | Some About -> { CurrentRoute = optRoute.Value; ActivePage = Page.About }, Cmd.none
+    | Some Home -> { CurrentRoute = optRoute.Value; ActivePage = Page.Home }, Cmd.none
     | None -> (model, Navigation.modifyUrl "/")
 
-let init (location : Router.Route option) =
+let init (location : Route option) =
     setRoute location
         { ActivePage = Page.Home
-          CurrentRoute = Router.Home }
+          CurrentRoute = Route.Home }
 
 let update (msg : Msg) (model : Model) =
     match model.ActivePage, msg with
@@ -52,7 +63,7 @@ let view (model : Model) (dispatch : Dispatch<Msg>) =
 
 // App
 Program.mkProgram init update view
-|> Program.toNavigable (parseHash Router.routeParser) setRoute
+|> Program.toNavigable parser setRoute
 #if DEBUG
 |> Program.withConsoleTrace
 #endif
