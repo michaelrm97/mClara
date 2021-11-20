@@ -61,7 +61,6 @@ let private handleResult (result: Result<'T, FetchError>): Async<Result<'T, int 
         | PreparingRequestFailed exn -> return Error(0, { ErrorCode = "Preparing Request Failed"; Message = exn.Message })
         | NetworkError exn -> return Error(0, { ErrorCode = "Network Error"; Message = exn.Message })
         | DecodingFailed s -> return Error (0, { ErrorCode = "Decoding Failed"; Message = s })
-        | _ -> return Error (0, { ErrorCode = "Unknown Error"; Message = "Unknown Error" })
 }
 
 let private cardsApi: ICardApi = {

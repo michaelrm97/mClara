@@ -1,17 +1,25 @@
 namespace ClaraMgmt
 
 open System
+open System.Drawing
 open System.Management.Automation
 open System.Security.Cryptography
+open QRCoder
 
-open Shared
 open Store
+open System.Diagnostics
 
 module Helpers =
     let NewCardId unit: string =
         let guid = Guid.NewGuid ()
         let hash = SHA1.HashData (guid.ToByteArray ())
         ((BitConverter.ToString hash).Replace ("-", "")).[..7]
+
+    let GenerateQRCode (url: string): Bitmap =
+        let qrGenerator: QRCodeGenerator = new QRCodeGenerator ()
+        let qrCodeData = qrGenerator.CreateQrCode (url, QRCodeGenerator.ECCLevel.H)
+        let qrCode = new QRCode (qrCodeData)
+        qrCode.GetGraphic (20, Color.Black, Color.White, false)
 
 type ClaraMgmtPSCmdlet () =
     inherit PSCmdlet ()
@@ -263,6 +271,7 @@ type RemoveCard () =
         | false -> x.WriteObject "Failed to remove card"
 
 [<Cmdlet(VerbsCommon.Get, "Logs")>]
+[<OutputType(typeof<Log>)>]
 type GetLogs () =
     inherit ClaraMgmtPSCmdlet ()
 
@@ -286,3 +295,33 @@ type GetLogs () =
 [<Cmdlet(VerbsCommon.Get, "QRCode")>]
 type GetQRCode () =
     inherit ClaraMgmtPSCmdlet ()
+
+    [<Parameter(Mandatory = true, Position = 0)>]
+    member val CardId: string = null with get, set
+
+    [<Parameter>]
+    member val OutputFile: string = null with get, set
+
+    [<Parameter>]
+    member val Show: SwitchParameter = new SwitchParameter (false) with get, set
+
+    [<DefaultValue>]
+    val mutable url: string
+
+    override x.BeginProcessing () =
+        base.BeginProcessing ()
+        if String.IsNullOrEmpty x.OutputFile then
+            x.OutputFile <- sprintf "%s.bmp" x.CardId
+            else ()
+        x.url <- sprintf "https://project-clara.com/cards/%s" x.CardId
+        x.WriteObject (sprintf "Generating QR Code for %s" x.url)
+
+    override x.ProcessRecord () =
+        let bitmap = Helpers.GenerateQRCode x.url
+        bitmap.Save (x.OutputFile)
+        if x.Show.IsPresent then
+            let p = new Process()
+            p.StartInfo <- new ProcessStartInfo(x.OutputFile)
+            p.StartInfo.UseShellExecute <- true
+            p.Start () |> ignore
+        else ()
