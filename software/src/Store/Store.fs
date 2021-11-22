@@ -17,6 +17,7 @@ type Store (connectionString: string) =
     let cardsContainerPartitionKeyPath = "/id"
     let logsContainerPartitionKeyPath = "/id"
 
+    let claraDB = cosmosClient.GetDatabase dbName
     let cardsContainer = cosmosClient.GetContainer (dbName, cardsContainerName)
     let logsContainer = cosmosClient.GetContainer (dbName, logsContainerName)
 
@@ -52,8 +53,21 @@ type Store (connectionString: string) =
     }
 
     member x.deleteDB unit: Task<unit> = task {
-        let database = cosmosClient.GetDatabase dbName
-        database.DeleteAsync () |> ignore
+        claraDB.DeleteAsync () |> ignore
+    }
+
+    member x.clearCardsContainer unit: Task<unit> = task {
+        cardsContainer.DeleteContainerAsync().Result |> ignore
+        (claraDB.CreateContainerAsync
+            (new ContainerProperties (cardsContainerName, cardsContainerPartitionKeyPath))).Result
+            |> ignore
+    }
+
+    member x.clearLogsContainer unit: Task<unit> = task {
+        logsContainer.DeleteContainerAsync().Result |> ignore
+        (claraDB.CreateContainerAsync
+            (new ContainerProperties (logsContainerName, logsContainerPartitionKeyPath))).Result
+            |> ignore
     }
 
     member x.listCards unit: Task<Card list> = task {
@@ -212,6 +226,14 @@ type Store (connectionString: string) =
 
         let queryIterator = logsContainer.GetItemQueryIterator<Log> (fullQuery)
         return! x._getItems queryIterator
+    }
+
+    member x.addRawLog (log: Log): Task<unit> = task {
+        logsContainer.UpsertItemAsync(log, new PartitionKey(log.Id)) |> ignore
+    }
+
+    member x.addRawCard (card: Card): Task<unit> = task {
+        cardsContainer.UpsertItemAsync(card, new PartitionKey(card.Id)) |> ignore
     }
 
     // Used by server
