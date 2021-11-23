@@ -1,1 +1,1 @@
-Copy-Item -Recurse .\ClaraMgmt ~\Documents\WindowsPowerShell\Modules
+Copy-Item -Recurse -Force .\ClaraMgmt ~\Documents\WindowsPowerShell\Modules
