@@ -213,9 +213,9 @@ type Store (connectionString: string) =
             sprintf "SELECT * FROM c"
 
         let whereClauses = [
-            if String.IsNullOrEmpty operation then "" else sprintf "c.Operation = %s" operation
-            if String.IsNullOrEmpty cardId then "" else sprintf "c.CardId = %s" cardId
-            if String.IsNullOrEmpty region then "" else sprintf "c.Region = %s" region
+            if String.IsNullOrEmpty operation then "" else sprintf "c.Operation = '%s'" operation
+            if String.IsNullOrEmpty cardId then "" else sprintf "c.CardId = '%s'" cardId
+            if String.IsNullOrEmpty region then "" else sprintf "c.Region = '%s'" region
         ]
 
         let whereClause = String.Join (" AND ", List.filter (String.IsNullOrEmpty >> not) whereClauses)
@@ -226,6 +226,10 @@ type Store (connectionString: string) =
 
         let queryIterator = logsContainer.GetItemQueryIterator<Log> (fullQuery)
         return! x._getItems queryIterator
+    }
+
+    member x.deleteLog (id: string): Task<unit> = task {
+        logsContainer.DeleteItemAsync(id, new PartitionKey (id)) |> ignore
     }
 
     member x.addRawLog (log: Log): Task<unit> = task {

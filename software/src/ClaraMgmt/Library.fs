@@ -11,6 +11,7 @@ open QRCoder
 open Store
 open System.Diagnostics
 open System.Collections.Generic
+open Newtonsoft.Json
 
 type NameId = {
     Id: string option
@@ -24,21 +25,23 @@ type CardMetadata = {
     ReplyLastModified: Nullable<DateTimeOffset>
 }
 
-module Helpers =
-    let NewCardId unit: string =
+type ClaraMgmtPSCmdlet () =
+    inherit PSCmdlet ()
+
+    member x.NewCardId unit: string =
         let guid = Guid.NewGuid ()
         let hash = SHA1.HashData (guid.ToByteArray ())
-        ((BitConverter.ToString hash).Replace ("-", "")).[..7]
+        ((BitConverter.ToString hash).Replace ("-", "")).[..7].ToLower()
 
-    let GetUrl (id: string): string = sprintf "https://project-clara.com/cards/%s" id
+    member x.GetUrl (id: string): string = sprintf "https://project-clara.com/cards/%s" id
 
-    let GenerateQRCode (url: string): Bitmap =
+    member x.GenerateQRCode (url: string): Bitmap =
         let qrGenerator: QRCodeGenerator = new QRCodeGenerator ()
-        let qrCodeData = qrGenerator.CreateQrCode (url, QRCodeGenerator.ECCLevel.H)
+        let qrCodeData = qrGenerator.CreateQrCode (url, QRCodeGenerator.ECCLevel.M)
         let qrCode = new QRCode (qrCodeData)
         qrCode.GetGraphic (20, Color.Black, Color.White, false)
 
-    let ParseFolderName (folderName: string): NameId =
+    member x.ParseFolderName (folderName: string): NameId =
         let tokens = folderName.Split('-')
         if tokens.Length <> 2 then invalidArg "folderName" "Invalid folder name"
         else
@@ -48,11 +51,11 @@ module Helpers =
             | "#" -> { Id = None; Name = name }
             | _ -> { Id = Some id; Name = name }
 
-    let GetFolderName (id: string) (name: string): string =
+    member x.GetFolderName (id: string) (name: string): string =
         sprintf "%s - %s" id name
 
-    let ExportSingleCard (outputPath: string) (qrCode: bool) (card: Card) : Unit =
-        let dirInfo = Directory.CreateDirectory (Path.Join (outputPath, GetFolderName card.Id card.Name))
+    member x.ExportSingleCard (outputPath: string) (qrCode: bool) (card: Card) : Unit =
+        let dirInfo = Directory.CreateDirectory (Path.Join (x.GetPath outputPath, x.GetFolderName card.Id card.Name))
         let contentFile = Path.Join (dirInfo.FullName, "content")
         File.WriteAllText (contentFile, card.Content)
         let commentFile = Path.Join (dirInfo.FullName, "comment")
@@ -66,14 +69,14 @@ module Helpers =
             ReplyLastModified = card.ReplyLastModified
         }
         let metadataFile = Path.Join (dirInfo.FullName, "metadata.json")
-        File.WriteAllText (metadataFile, (sprintf "%A" metadata))
+        File.WriteAllText (metadataFile, JsonConvert.SerializeObject(metadata))
         if qrCode then
-            let bitmap = GenerateQRCode (GetUrl card.Id)
+            let bitmap = x.GenerateQRCode (x.GetUrl card.Id)
             bitmap.Save (Path.Join (dirInfo.FullName, sprintf "%s.bmp" card.Id))
         else ()
 
-type ClaraMgmtPSCmdlet () =
-    inherit PSCmdlet ()
+    member x.GetPath (path: string): string =
+        if Path.IsPathFullyQualified path then path else Path.Join (x.SessionState.Path.CurrentFileSystemLocation.Path, path)
 
     // Related to getting Cosmos DB connection string
     [<Parameter>]
@@ -171,6 +174,23 @@ type ClearClaraDB () =
             x.store.clearCardsContainer().Result
         else ()
 
+[<Cmdlet(VerbsCommon.Clear, "Logs")>]
+type ClearLogs () =
+    inherit ClaraMgmtPSCmdlet ()
+
+    [<Parameter(Mandatory = true, Position = 0)>]
+    member val CardId: string = null with get, set
+
+    override x.BeginProcessing () =
+        base.BeginProcessing ()
+        x.CardId <- x.CardId.ToLower()
+        x.WriteObject (sprintf "Clearing logs for %s" x.CardId)
+
+    override x.ProcessRecord () =
+        // Delete then recreate
+        (x.store.getLogs null x.CardId null).Result
+        |> List.map (fun (log: Log) -> x.store.deleteLog(log.Id).Result) |> ignore
+
 [<Cmdlet(VerbsCommon.Get, "Cards")>]
 [<OutputType(typeof<Card>)>]
 type GetCards () =
@@ -232,7 +252,7 @@ type NewCard () =
     override x.BeginProcessing () =
         base.BeginProcessing ()
         if String.IsNullOrWhiteSpace x.Id then
-            x.Id <- Helpers.NewCardId ()
+            x.Id <- x.NewCardId ()
             // We assume that collisions will not be an issue as there are 2^32 possible ids
             // However, we ensure we avoid overwriting cards in the rare case this happens
             if x.Overwrite.IsPresent then
@@ -290,7 +310,7 @@ type EditCard () =
                             (x.store.editCard
                             x.Id x.NewName x.NewContent x.NewReply x.ForceReply.IsPresent x.Create.IsPresent).Result
                         | "UsingName" ->
-                            let backupId = (Helpers.NewCardId()).ToLower()
+                            let backupId = x.NewCardId()
                             (x.store.editCardByName
                             x.Name backupId x.NewName x.NewContent x.NewReply x.ForceReply.IsPresent x.Create.IsPresent).Result
                         | _ ->
@@ -377,12 +397,12 @@ type GetQRCode () =
         if String.IsNullOrEmpty x.OutputFile then
             x.OutputFile <- sprintf "%s.bmp" x.CardId
             else ()
-        x.url <- Helpers.GetUrl x.CardId
+        x.url <- x.GetUrl x.CardId
         x.WriteObject (sprintf "Generating QR Code for %s" x.url)
 
     override x.ProcessRecord () =
-        let bitmap = Helpers.GenerateQRCode x.url
-        bitmap.Save (x.OutputFile)
+        let bitmap = x.GenerateQRCode x.url
+        bitmap.Save (Path.GetFullPath x.OutputFile)
         if x.Show.IsPresent then
             let p = new Process()
             p.StartInfo <- new ProcessStartInfo(x.OutputFile)
@@ -416,16 +436,18 @@ type ImportCards () =
         base.BeginProcessing ()
         match x.ParameterSetName with
         | "SingleCard" ->
-            x.root <- Path.GetPathRoot x.Path
-            x.paths <- Path.GetFileName x.Path :: []
+            let actualPath = x.GetPath x.Path
+            x.root <- Path.GetPathRoot actualPath
+            x.paths <- Path.GetDirectoryName actualPath :: []
             if x.Overwrite.IsPresent then
                 x.WriteObject "Single card specified. Setting overwrite to false"
                 x.RemoveExcess <- new SwitchParameter (false)
             else ()
             x.WriteObject (sprintf "Importing card at %s" x.Path)
         | "MultipleCards" ->
-            x.root <- x.RootPath
-            x.paths <- Directory.GetDirectories x.RootPath |> List.ofArray |> List.map Path.GetFileName
+            let actualPath = x.GetPath x.RootPath
+            x.root <- actualPath
+            x.paths <- Directory.GetDirectories actualPath |> List.ofArray |> List.map Path.GetFileName
             x.WriteObject (sprintf "Importing %d cards from %s" (List.length x.paths) x.RootPath)
         | _ ->
             x.WriteWarning "Invalid parameter set name"
@@ -437,10 +459,10 @@ type ImportCards () =
         let cardsDict = new Dictionary<string, Card> ()
         List.map (fun (c: Card) -> cardsDict.Add (c.Id, c)) cards |> ignore
         List.map (fun (p: string) ->
-            let nameId = Helpers.ParseFolderName p
+            let nameId = x.ParseFolderName p
             let id =
                 match nameId.Id with
-                | None -> Helpers.NewCardId ()
+                | None -> x.NewCardId ()
                 | Some i -> i
 
             let oldCard =
@@ -452,8 +474,10 @@ type ImportCards () =
 
             let name = if shouldOverwrite then nameId.Name else oldCard.Value.Name
 
-            let path = Helpers.GetFolderName id name
-            if p <> path then Directory.Move (p, path) else ()
+            let folderName = x.GetFolderName id name
+            let path = Path.Join (x.root, folderName)
+
+            if p <> folderName then Directory.Move (Path.Join (x.root, p), path) else ()
 
             let content =
                 if (shouldOverwrite || oldCard.Value.Content = null) then
@@ -480,7 +504,7 @@ type ImportCards () =
                 try
                     let metadataFile = Path.Join (path, "metadata.json")
                     let metadataText = File.ReadAllText metadataFile
-                    Some (Newtonsoft.Json.JsonConvert.DeserializeObject<CardMetadata>(metadataText))
+                    Some (JsonConvert.DeserializeObject<CardMetadata>(metadataText))
                     with
                 | _ -> None
 
@@ -553,20 +577,19 @@ type ExportCards () =
             x.WriteWarning "Invalid parameter set name"
             x.StopProcessing()
 
-        if String.IsNullOrEmpty x.OutputPath then x.OutputPath <- "." else ()
+        x.OutputPath <- x.GetPath x.OutputPath
 
     override x.ProcessRecord () =
-        x.WriteObject "Performing export"
         match x.ParameterSetName with
         | "UsingId" ->
             (x.store.getCard x.Id).Result
-            |> Helpers.ExportSingleCard x.OutputPath x.QRCode.IsPresent
+            |> x.ExportSingleCard x.OutputPath x.QRCode.IsPresent
         | "UsingName" ->
             (x.store.getCardByName x.Name).Result
-            |> Helpers.ExportSingleCard x.OutputPath x.QRCode.IsPresent
+            |> x.ExportSingleCard x.OutputPath x.QRCode.IsPresent
         | "All" ->
             (x.store.listCards ()).Result
-            |> List.map (Helpers.ExportSingleCard x.OutputPath x.QRCode.IsPresent)
+            |> List.map (x.ExportSingleCard x.OutputPath x.QRCode.IsPresent)
             |> ignore
         | _ ->
             x.WriteWarning "Invalid parameter set name"
@@ -584,7 +607,7 @@ type ImportLogs () =
         x.WriteObject (sprintf "Importing logs from %s" x.Path)
 
     override x.ProcessRecord () =
-        let lines = File.ReadAllLines x.Path |> List.ofArray
+        let lines = File.ReadAllLines (x.GetPath x.Path) |> List.ofArray
         let logs =
             lines |> List.map (fun (line: string) ->
                 let items = line.Split(',')
@@ -611,4 +634,4 @@ type ExportLogs () =
     override x.ProcessRecord () =
         let result = (x.store.getLogs null null null).Result
         let lines = List.map (fun (l: Log) -> sprintf "%s,%s,%s,%s,%s" l.Id l.Operation l.CardId (l.AccessTime.ToString()) l.Region) result
-        File.WriteAllLines (x.OutputPath, lines)
+        File.WriteAllLines (x.GetPath x.OutputPath, lines)
