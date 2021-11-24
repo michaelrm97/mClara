@@ -90,11 +90,12 @@ type Store (connectionString: string) =
         return List.exactlyOne items
     }
 
-    member x.newCard (id: string) (name: string) (content: string) (overwrite: bool): Task<bool> = task {
+    member x.newCard (id: string) (name: string) (displayName: string) (content: string) (overwrite: bool): Task<bool> = task {
         let currentTime = DateTimeOffset.UtcNow
         let card: Card = {
             Id = id
             Name = name
+            DisplayName = displayName
             Content = content
             Comment = null
             Reply = null
@@ -104,21 +105,14 @@ type Store (connectionString: string) =
             ReplyLastModified = Nullable ()
         }
 
-        if overwrite then
-            cardsContainer.UpsertItemAsync (card, new PartitionKey (id)) |> ignore
-            return true
-        else
-            try
-                let! _ = cardsContainer.CreateItemAsync (card, new PartitionKey (id))
-                return true
-            with
-            | :? CosmosException as cex when cex.ErrorCode = "Conflict" -> return false
+        return! x.addRawCard card overwrite
     }
 
     member x.editCardHelper
             (items: Card list)
             (id: string)
             (newName: string)
+            (newDisplayName: string)
             (newContent: string)
             (newReply: string)
             (forceReply: bool)
@@ -133,6 +127,7 @@ type Store (connectionString: string) =
                 let card: Card = {
                     Id = item.Id
                     Name = if String.IsNullOrEmpty newName then item.Name else newName
+                    DisplayName = if String.IsNullOrEmpty newDisplayName then item.DisplayName else newDisplayName
                     Content = if String.IsNullOrEmpty newContent then item.Content else newContent
                     Comment = item.Comment
                     Reply = if String.IsNullOrEmpty newReply then item.Reply else newReply
@@ -150,6 +145,7 @@ type Store (connectionString: string) =
                 let card: Card = {
                     Id = id
                     Name = newName
+                    DisplayName = newDisplayName
                     Content = newContent
                     Comment = null
                     Reply = newReply
@@ -168,6 +164,7 @@ type Store (connectionString: string) =
     member x.editCard
             (id: string)
             (newName: string)
+            (newDisplayName : string)
             (newContent: string)
             (newReply: string)
             (forceReply: bool)
@@ -175,13 +172,14 @@ type Store (connectionString: string) =
         let sqlQueryText = byIdQueryText id
         let queryIterator = cardsContainer.GetItemQueryIterator<Card> (sqlQueryText)
         let! items = x._getItems queryIterator
-        return! x.editCardHelper items id newName newContent newReply forceReply create
+        return! x.editCardHelper items id newName newDisplayName newContent newReply forceReply create
     }
 
     member x.editCardByName
             (name: string)
             (backupId: string)
             (newName: string)
+            (newDisplayName : string)
             (newContent: string)
             (newReply: string)
             (forceReply: bool)
@@ -189,7 +187,7 @@ type Store (connectionString: string) =
         let sqlQueryText = byNameQueryText name
         let queryIterator = cardsContainer.GetItemQueryIterator<Card> (sqlQueryText)
         let! items = x._getItems queryIterator
-        return! x.editCardHelper items backupId newName newContent newReply forceReply create
+        return! x.editCardHelper items backupId newName newDisplayName  newContent newReply forceReply create
     }
 
     member x.deleteCard (id: string): Task<bool> = task {
@@ -236,8 +234,16 @@ type Store (connectionString: string) =
         logsContainer.UpsertItemAsync(log, new PartitionKey(log.Id)) |> ignore
     }
 
-    member x.addRawCard (card: Card): Task<unit> = task {
-        cardsContainer.UpsertItemAsync(card, new PartitionKey(card.Id)) |> ignore
+    member x.addRawCard (card: Card) (overwrite: bool): Task<bool> = task {
+        if overwrite then
+            cardsContainer.UpsertItemAsync (card, new PartitionKey (card.Id)) |> ignore
+            return true
+        else
+            try
+                let! _ = cardsContainer.CreateItemAsync (card, new PartitionKey (card.Id))
+                return true
+            with
+            | :? CosmosException as cex when cex.ErrorCode = "Conflict" -> return false
     }
 
     // Used by server
@@ -272,6 +278,7 @@ type Store (connectionString: string) =
             let newItem = {
                 Id = item.Id
                 Name = item.Name
+                DisplayName = item.DisplayName
                 Content = item.Content
                 Comment = comment
                 Reply = item.Reply

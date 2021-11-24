@@ -16,6 +16,7 @@ open Newtonsoft.Json
 type NameId = {
     Id: string option
     Name: string
+    DisplayName: string
 }
 
 type CardMetadata = {
@@ -41,21 +42,26 @@ type ClaraMgmtPSCmdlet () =
         let qrCode = new QRCode (qrCodeData)
         qrCode.GetGraphic (20, Color.Black, Color.White, false)
 
+    member x.GetNameAndDisplayName (nameToken: string): string * string =
+        let tokens = nameToken.Split('(', ')')
+        if tokens.Length = 1 then ((tokens.[0]).Trim(), (tokens.[0]).Trim())
+        else ((tokens.[0]).Trim(), (tokens.[1]).Trim())
+
     member x.ParseFolderName (folderName: string): NameId =
         let tokens = folderName.Split('-')
         if tokens.Length <> 2 then invalidArg "folderName" "Invalid folder name"
         else
             let id = (tokens.[0]).Trim()
-            let name = (tokens.[1]).Trim()
+            let (name, displayName) = x.GetNameAndDisplayName ((tokens.[1]).Trim())
             match id with
-            | "#" -> { Id = None; Name = name }
-            | _ -> { Id = Some id; Name = name }
+            | "#" -> { Id = None; Name = name; DisplayName = displayName }
+            | _ -> { Id = Some id; Name = name; DisplayName = displayName }
 
-    member x.GetFolderName (id: string) (name: string): string =
-        sprintf "%s - %s" id name
+    member x.GetFolderName (id: string) (name: string) (displayName: string): string =
+        sprintf "%s - %s (%s)" id name displayName
 
     member x.ExportSingleCard (outputPath: string) (qrCode: bool) (card: Card) : Unit =
-        let dirInfo = Directory.CreateDirectory (Path.Join (x.GetPath outputPath, x.GetFolderName card.Id card.Name))
+        let dirInfo = Directory.CreateDirectory (Path.Join (x.GetPath outputPath, x.GetFolderName card.Id card.Name card.DisplayName))
         let contentFile = Path.Join (dirInfo.FullName, "content")
         File.WriteAllText (contentFile, card.Content)
         let commentFile = Path.Join (dirInfo.FullName, "comment")
@@ -242,6 +248,9 @@ type NewCard () =
     
     [<Parameter(Mandatory = true)>]
     member val Name: string = null with get, set
+
+    [<Parameter>]
+    member val DisplayName: string = null with get, set
     
     [<Parameter>]
     member val Content: string = null with get, set
@@ -261,10 +270,11 @@ type NewCard () =
             else ()
 
         x.Id <- x.Id.ToLower()
+        if String.IsNullOrEmpty x.DisplayName then x.DisplayName <- x.Name else ()
         x.WriteObject (sprintf "Creating new card with id %s" x.Id)
 
     override x.ProcessRecord () =
-        match (x.store.newCard x.Id x.Name x.Content x.Overwrite.IsPresent).Result with
+        match (x.store.newCard x.Id x.Name x.DisplayName x.Content x.Overwrite.IsPresent).Result with
         | true -> x.WriteObject "Successfully created card"
         | false -> x.WriteObject "Failed to create card due to conflicting id"
 
@@ -277,6 +287,9 @@ type EditCard () =
 
     [<Parameter(Mandatory = true, ParameterSetName = "UsingName")>]
     member val Name: string = null with get, set
+
+    [<Parameter>]
+    member val NewDisplayName: string = null with get, set
     
     [<Parameter>]
     member val NewName: string = null with get, set
@@ -308,11 +321,11 @@ type EditCard () =
         let result = match x.ParameterSetName with
                         | "UsingId" ->
                             (x.store.editCard
-                            x.Id x.NewName x.NewContent x.NewReply x.ForceReply.IsPresent x.Create.IsPresent).Result
+                            x.Id x.NewName x.NewDisplayName x.NewContent x.NewReply x.ForceReply.IsPresent x.Create.IsPresent).Result
                         | "UsingName" ->
                             let backupId = x.NewCardId()
                             (x.store.editCardByName
-                            x.Name backupId x.NewName x.NewContent x.NewReply x.ForceReply.IsPresent x.Create.IsPresent).Result
+                            x.Name backupId x.NewName x.NewDisplayName x.NewContent x.NewReply x.ForceReply.IsPresent x.Create.IsPresent).Result
                         | _ ->
                             x.WriteWarning "Invalid parameter set name"
                             false
@@ -423,9 +436,6 @@ type ImportCards () =
     [<Parameter>]
     member val Overwrite: SwitchParameter = new SwitchParameter (false) with get, set
 
-    [<Parameter>]
-    member val RemoveExcess: SwitchParameter = new SwitchParameter (false) with get, set
-
     [<DefaultValue>]
     val mutable root: string
 
@@ -439,25 +449,18 @@ type ImportCards () =
             let actualPath = x.GetPath x.Path
             x.root <- Path.GetPathRoot actualPath
             x.paths <- Path.GetDirectoryName actualPath :: []
-            if x.Overwrite.IsPresent then
-                x.WriteObject "Single card specified. Setting overwrite to false"
-                x.RemoveExcess <- new SwitchParameter (false)
-            else ()
             x.WriteObject (sprintf "Importing card at %s" x.Path)
         | "MultipleCards" ->
             let actualPath = x.GetPath x.RootPath
             x.root <- actualPath
             x.paths <- Directory.GetDirectories actualPath |> List.ofArray |> List.map Path.GetFileName
-            x.WriteObject (sprintf "Importing %d cards from %s" (List.length x.paths) x.RootPath)
+            x.WriteObject (sprintf "Importing %d cards at %s" (List.length x.paths) x.RootPath)
         | _ ->
             x.WriteWarning "Invalid parameter set name"
             x.StopProcessing()
 
     override x.ProcessRecord () =
         // Get all cards
-        let cards = x.store.listCards().Result
-        let cardsDict = new Dictionary<string, Card> ()
-        List.map (fun (c: Card) -> cardsDict.Add (c.Id, c)) cards |> ignore
         List.map (fun (p: string) ->
             let nameId = x.ParseFolderName p
             let id =
@@ -465,40 +468,28 @@ type ImportCards () =
                 | None -> x.NewCardId ()
                 | Some i -> i
 
-            let oldCard =
-                match cardsDict.ContainsKey id with
-                | true -> Some cardsDict.[id]
-                | false -> None
+            let name = nameId.Name
+            let displayName = nameId.DisplayName
 
-            let shouldOverwrite = x.Overwrite.IsPresent || oldCard = None
-
-            let name = if shouldOverwrite then nameId.Name else oldCard.Value.Name
-
-            let folderName = x.GetFolderName id name
+            let folderName = x.GetFolderName id name displayName
             let path = Path.Join (x.root, folderName)
 
-            if p <> folderName then Directory.Move (Path.Join (x.root, p), path) else ()
+            if nameId.Id = None then Directory.Move (Path.Join (x.root, p), path) else ()
 
             let content =
-                if (shouldOverwrite || oldCard.Value.Content = null) then
-                    let contentFile = Path.Join (path, "content")
-                    try File.ReadAllText contentFile with
-                    | _ -> ""
-                else oldCard.Value.Content
+                let contentFile = Path.Join (path, "content")
+                try File.ReadAllText contentFile with
+                | _ -> ""
 
             let comment =
-                if (shouldOverwrite || oldCard.Value.Comment = null) then
-                    let commentFile = Path.Join (path, "comment")
-                    try File.ReadAllText commentFile with
-                    | _ -> null
-                else oldCard.Value.Comment
+                let commentFile = Path.Join (path, "comment")
+                try File.ReadAllText commentFile with
+                | _ -> null
 
             let reply =
-                if (shouldOverwrite || oldCard.Value.Reply = null) then
-                    let replyFile = Path.Join (path, "reply")
-                    try File.ReadAllText replyFile with
-                    | _ -> null
-                else oldCard.Value.Reply
+                let replyFile = Path.Join (path, "reply")
+                try File.ReadAllText replyFile with
+                | _ -> null
 
             let metadata =
                 try
@@ -509,8 +500,8 @@ type ImportCards () =
                 | _ -> None
 
             let (created, contentLastModified, commentLastModified, replyLastModified) =
-                match shouldOverwrite, metadata with
-                | true, Some m -> (m.Created, m.ContentLastModified, m.CommentLastModified, m.ReplyLastModified)
+                match metadata with
+                | Some m -> (m.Created, m.ContentLastModified, m.CommentLastModified, m.ReplyLastModified)
                 | _ ->
                     let currentTime = DateTimeOffset.UtcNow
                     (currentTime,
@@ -521,6 +512,7 @@ type ImportCards () =
             let card = {
                 Id = id
                 Name = name
+                DisplayName = displayName
                 Content = content
                 Comment = comment
                 Reply = reply
@@ -531,14 +523,8 @@ type ImportCards () =
             }
 
             // Upsert
-            (x.store.addRawCard card).Result
-            cardsDict.Remove id
+            (x.store.addRawCard card x.Overwrite.IsPresent).Result
         ) x.paths |> ignore
-
-        if x.RemoveExcess.IsPresent then
-            cardsDict.Keys
-            |> Seq.iter (fun id -> (x.store.deleteCard id).Result |> ignore)
-        else ()
 
 [<Cmdlet(VerbsData.Export, "Cards")>]
 type ExportCards () =
@@ -594,6 +580,136 @@ type ExportCards () =
         | _ ->
             x.WriteWarning "Invalid parameter set name"
             x.StopProcessing()
+
+[<Cmdlet(VerbsData.Sync, "Cards")>]
+type SyncCards () =
+    inherit ClaraMgmtPSCmdlet ()
+
+    [<Parameter(Mandatory = true, ParameterSetName = "SingleCard")>]
+    member val Path: string = null with get, set
+
+    [<Parameter(Mandatory = true, ParameterSetName = "MultipleCards")>]
+    member val RootPath: string = null with get, set
+
+    [<DefaultValue>]
+    val mutable root: string
+
+    [<DefaultValue>]
+    val mutable paths: string list
+
+    override x.BeginProcessing () =
+        base.BeginProcessing ()
+        match x.ParameterSetName with
+        | "SingleCard" ->
+            let actualPath = x.GetPath x.Path
+            x.root <- Path.GetPathRoot actualPath
+            x.paths <- Path.GetDirectoryName actualPath :: []
+            x.WriteObject (sprintf "Syncing card at %s" x.Path)
+        | "MultipleCards" ->
+            let actualPath = x.GetPath x.RootPath
+            x.root <- actualPath
+            x.paths <- Directory.GetDirectories actualPath |> List.ofArray |> List.map Path.GetFileName
+            x.WriteObject (sprintf "Syncing %d cards at %s" (List.length x.paths) x.RootPath)
+        | _ ->
+            x.WriteWarning "Invalid parameter set name"
+            x.StopProcessing()
+
+    override x.ProcessRecord () =
+        // Get all cards
+        let cards = x.store.listCards().Result
+        let cardsDict = new Dictionary<string, Card> ()
+        List.map (fun (c: Card) -> cardsDict.Add (c.Id, c)) cards |> ignore
+        List.map (fun (p: string) ->
+            let nameId = x.ParseFolderName p
+            let id =
+                match nameId.Id with
+                | None -> x.NewCardId ()
+                | Some i -> i
+
+            let oldCard =
+                match cardsDict.ContainsKey id with
+                | true -> Some cardsDict.[id]
+                | false -> None
+
+            let name = nameId.Name
+            let displayName = nameId.DisplayName
+
+            let folderName = x.GetFolderName id name displayName
+            let path = Path.Join (x.root, folderName)
+
+            if nameId.Id = None then Directory.Move (Path.Join (x.root, p), path) else ()
+
+            let content =
+                let contentFile = Path.Join (path, "content")
+                try File.ReadAllText contentFile with
+                | _ -> ""
+
+            let comment =
+                match oldCard with
+                | Some c -> c.Comment
+                | None -> null
+
+            if not (String.IsNullOrEmpty comment) then
+                let commentFile = Path.Join (path, "comment")
+                File.WriteAllText (commentFile, comment)
+
+            let reply =
+                let replyFile = Path.Join (path, "reply")
+                try File.ReadAllText replyFile with
+                | _ -> null
+
+            let currentTime = DateTimeOffset.UtcNow
+
+            let created =
+                match oldCard with
+                | Some c -> c.Created
+                | None -> currentTime
+
+            let contentLastModified =
+                match oldCard with
+                | Some c -> if c.Content <> content then currentTime else c.ContentLastModified
+                | None -> currentTime
+
+            let commentLastModified =
+                match oldCard with
+                | Some c -> c.CommentLastModified
+                | None -> Nullable ()
+
+            let replyLastModified =
+                match oldCard with
+                | Some c -> if c.Content <> content then Nullable currentTime else c.ReplyLastModified
+                | None -> if String.IsNullOrEmpty reply then Nullable currentTime else Nullable ()
+
+            let metadata = {
+                Created = created
+                ContentLastModified = contentLastModified
+                CommentLastModified = commentLastModified
+                ReplyLastModified = replyLastModified
+            }
+
+            let metadataFile = Path.Join (path, "metadata.json")
+            File.WriteAllText (metadataFile, JsonConvert.SerializeObject(metadata))
+
+            let card = {
+                Id = id
+                Name = name
+                DisplayName = displayName
+                Content = content
+                Comment = comment
+                Reply = reply
+                Created = created
+                ContentLastModified = contentLastModified
+                CommentLastModified = commentLastModified
+                ReplyLastModified = replyLastModified
+            }
+
+            // Upsert
+            (x.store.addRawCard card true).Result |> ignore
+            cardsDict.Remove id
+        ) x.paths |> ignore
+
+        cardsDict.Keys
+        |> Seq.iter (fun id -> (x.store.deleteCard id).Result |> ignore)
 
 [<Cmdlet(VerbsData.Import, "Logs")>]
 type ImportLogs () =

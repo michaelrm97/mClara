@@ -10,6 +10,7 @@ type ErrorResponse =
 // Response sent to client on GET Request
 type CardResponse = {
     Name: string
+    DisplayName: string
     Content: string
     Comment: string
     Reply: string

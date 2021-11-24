@@ -8,6 +8,7 @@ type Card = {
     [<JsonPropertyName("id")>]
     Id: string
     Name: string
+    DisplayName: string
     Content: string
     Comment: string
     Reply: string
