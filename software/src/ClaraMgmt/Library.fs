@@ -705,6 +705,10 @@ type SyncCards () =
 
             // Upsert
             (x.store.addRawCard card true).Result |> ignore
+
+            let bitmap = x.GenerateQRCode (x.GetUrl id)
+            bitmap.Save (Path.Join (path, (sprintf "%s.bmp" id)))
+
             cardsDict.Remove id
         ) x.paths |> ignore
 
