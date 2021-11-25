@@ -249,7 +249,7 @@ type Store (connectionString: string) =
     // Used by server
     member x.getCardResponse (id: string): Task<CardResponse option> = task {
         let sqlQueryText =
-            sprintf "SELECT c.id, c.Name, c.Content, c.Comment, c.Reply, c.CommentLastModified, c.ReplyLastModified FROM c WHERE c.id = '%s'" id
+            sprintf "SELECT c.id, c.Name, c.DisplayName, c.Content, c.Comment, c.Reply, c.CommentLastModified, c.ReplyLastModified FROM c WHERE c.id = '%s'" id
         let queryIterator = cardsContainer.GetItemQueryIterator<CardResponse> (sqlQueryText)
         let! items = x._getItems queryIterator
         return match items with

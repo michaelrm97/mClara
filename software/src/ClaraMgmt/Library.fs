@@ -32,9 +32,9 @@ type ClaraMgmtPSCmdlet () =
     member x.NewCardId unit: string =
         let guid = Guid.NewGuid ()
         let hash = SHA1.HashData (guid.ToByteArray ())
-        ((BitConverter.ToString hash).Replace ("-", "")).[..7].ToLower()
+        ((BitConverter.ToString hash).Replace ("-", "")).[..4].ToLower()
 
-    member x.GetUrl (id: string): string = sprintf "https://project-clara.com/cards/%s" id
+    member x.GetUrl (id: string): string = sprintf "project-clara.com/%s" id
 
     member x.GenerateQRCode (url: string): Bitmap =
         let qrGenerator: QRCodeGenerator = new QRCodeGenerator ()

@@ -34,7 +34,7 @@ let private nullableDateTimeOffsetDecoder: Decoder<Nullable<DateTimeOffset>> =
 
 let private cardResponseDecoder: Decoder<CardResponse> = Decode.object (fun get -> {
     Name = get.Required.Field "name" Decode.string
-    DisplayName = get.Required.Field "displayName" Decode.string
+    DisplayName = get.Required.Field "displayName" nullableStringDecoder
     Content = get.Required.Field "content" Decode.string
     Comment = get.Required.Field "comment" nullableStringDecoder
     Reply = get.Required.Field "reply" nullableStringDecoder

@@ -28,9 +28,10 @@ type Msg =
     | CardMsg of Card.Msg
 
 let parser =
-    oneOf [ map Card (s "cards" </> str)
-            map About (s "about")
-            map Home (s "home") ]
+    oneOf [ map About (s "about")
+            map Home (s "home")
+            map Home top
+            map Card str ]
     |> parsePath
 
 let private setRoute (optRoute: Route option) (model: Model) =
