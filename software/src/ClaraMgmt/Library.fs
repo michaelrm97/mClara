@@ -30,9 +30,12 @@ type ClaraMgmtPSCmdlet () =
     inherit PSCmdlet ()
 
     member x.NewCardId unit: string =
-        let guid = Guid.NewGuid ()
-        let hash = SHA1.HashData (guid.ToByteArray ())
-        ((BitConverter.ToString hash).Replace ("-", "")).[..4].ToLower()
+        let random = new Random()
+        Seq.map (fun _ -> random.Next(36)) (seq { 1 .. 5 })
+        |> Seq.map (fun i -> if i < 10 then i + (int)'0' else i - 10 + (int)'A')
+        |> Seq.map Convert.ToChar
+        |> Seq.toArray
+        |> fun chars -> new String(chars)
 
     member x.GetUrl (id: string): string = sprintf "project-clara.com/%s" id
 
@@ -189,7 +192,7 @@ type ClearLogs () =
 
     override x.BeginProcessing () =
         base.BeginProcessing ()
-        x.CardId <- x.CardId.ToLower()
+        x.CardId <- x.CardId.ToUpper()
         x.WriteObject (sprintf "Clearing logs for %s" x.CardId)
 
     override x.ProcessRecord () =
@@ -224,7 +227,7 @@ type GetCard () =
         base.BeginProcessing ()
         match x.ParameterSetName with
         | "UsingId" ->
-            x.Id <- x.Id.ToLower()
+            x.Id <- x.Id.ToUpper()
             x.WriteObject (sprintf "Getting card with id %s" x.Id)
         | "UsingName" -> x.WriteObject (sprintf "Getting card with name %s" x.Name)
         | _ ->
@@ -269,7 +272,7 @@ type NewCard () =
                 x.Overwrite <- new SwitchParameter (false)
             else ()
 
-        x.Id <- x.Id.ToLower()
+        x.Id <- x.Id.ToUpper()
         if String.IsNullOrEmpty x.DisplayName then x.DisplayName <- x.Name else ()
         x.WriteObject (sprintf "Creating new card with id %s" x.Id)
 
@@ -310,7 +313,7 @@ type EditCard () =
         base.BeginProcessing ()
         match x.ParameterSetName with
         | "UsingId" ->
-            x.Id <- x.Id.ToLower()
+            x.Id <- x.Id.ToUpper()
             x.WriteObject (sprintf "Editing card with id %s" x.Id)
         | "UsingName" -> x.WriteObject (sprintf "Editing card with name %s" x.Name)
         | _ ->
@@ -348,7 +351,7 @@ type RemoveCard () =
         base.BeginProcessing ()
         match x.ParameterSetName with
         | "UsingId" ->
-            x.Id <- x.Id.ToLower()
+            x.Id <- x.Id.ToUpper()
             x.WriteObject (sprintf "Removing card with id %s" x.Id)
         | "UsingName" -> x.WriteObject (sprintf "Removing card with name %s" x.Name)
         | _ ->
@@ -549,7 +552,7 @@ type ExportCards () =
         base.BeginProcessing ()
         match x.ParameterSetName with
         | "UsingId" ->
-            x.Id <- x.Id.ToLower()
+            x.Id <- x.Id.ToUpper()
             x.WriteObject (sprintf "Exporting card with id %s" x.Id)
         | "UsingName" ->
             x.WriteObject (sprintf "Exporting card with name %s" x.Name)
