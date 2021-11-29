@@ -207,7 +207,7 @@ type GetCards () =
 
     override x.BeginProcessing () =
         base.BeginProcessing ()
-        x.WriteObject "Getting all cards"
+        //x.WriteObject "Getting all cards"
 
     override x.ProcessRecord () =
         x.WriteObject (x.store.listCards().Result, true)
@@ -228,8 +228,8 @@ type GetCard () =
         match x.ParameterSetName with
         | "UsingId" ->
             x.Id <- x.Id.ToUpper()
-            x.WriteObject (sprintf "Getting card with id %s" x.Id)
-        | "UsingName" -> x.WriteObject (sprintf "Getting card with name %s" x.Name)
+            //x.WriteObject (sprintf "Getting card with id %s" x.Id)
+        | "UsingName" -> ()//x.WriteObject (sprintf "Getting card with name %s" x.Name)
         | _ ->
             x.WriteWarning "Invalid parameter set name"
             x.StopProcessing()
@@ -386,7 +386,7 @@ type GetLogs () =
 
     override x.BeginProcessing () =
         base.BeginProcessing ()
-        x.WriteObject "Getting logs"
+        //x.WriteObject "Getting logs"
 
     override x.ProcessRecord () =
         let result = (x.store.getLogs x.Operation x.CardId x.Region).Result
