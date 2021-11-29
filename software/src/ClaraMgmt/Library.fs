@@ -600,6 +600,11 @@ type SyncCards () =
     [<DefaultValue>]
     val mutable paths: string list
 
+    // If specified, any items present in the database but not in the folder will be removed
+    // Otherwise, an item will be created
+    [<Parameter>]
+    member val Remove: SwitchParameter = SwitchParameter(false) with get, set
+
     override x.BeginProcessing () =
         base.BeginProcessing ()
         match x.ParameterSetName with
@@ -715,8 +720,12 @@ type SyncCards () =
             cardsDict.Remove id
         ) x.paths |> ignore
 
-        cardsDict.Keys
-        |> Seq.iter (fun id -> (x.store.deleteCard id).Result |> ignore)
+        if x.ParameterSetName = "MultipleCards" && x.Remove.IsPresent then
+            cardsDict.Keys
+            |> Seq.iter (fun id -> (x.store.deleteCard id).Result |> ignore)
+        else
+            cardsDict.Values
+            |> Seq.iter (x.ExportSingleCard x.root true)
 
 [<Cmdlet(VerbsData.Import, "Logs")>]
 type ImportLogs () =
