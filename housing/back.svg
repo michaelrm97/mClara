@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
-     inkscape:cx="307.32428"
-     inkscape:cy="289.08412"
+     inkscape:cx="251.88135"
+     inkscape:cy="151.76725"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,17 +59,17 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-opacity:1"
-       x="75.492355"
-       y="94.227501"
+       x="73.76918"
+       y="94.19751"
        id="text1666-2-5-5"><tspan
          sodipodi:role="line"
-         x="75.492355"
-         y="94.227501"
+         x="73.76918"
+         y="94.19751"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-opacity:1"
          id="tspan2128">Scan for more</tspan><tspan
          sodipodi:role="line"
-         x="75.492355"
-         y="98.637222"
+         x="73.76918"
+         y="98.607231"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-opacity:1"
          id="tspan2335" /></text>
     <path
@@ -181,13 +181,13 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;line-height:1.25;font-family:'Vladimir Script';-inkscape-font-specification:'Vladimir Script, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="16.219587"
-       y="10.218564"
+       x="16.544054"
+       y="11.766631"
        id="text1666-1-6"><tspan
          sodipodi:role="line"
          id="tspan1664-6-8"
-         x="16.219587"
-         y="10.218564"
+         x="16.544054"
+         y="11.766631"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;font-family:'Vladimir Script';-inkscape-font-specification:'Vladimir Script, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke-width:0.264583">My Dear Friend</tspan></text>
     <text
        xml:space="preserve"
@@ -201,64 +201,14 @@
          y="100.09412"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583">project-clara.com/ABCDE</tspan></text>
     <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 67,91.000001 64.000001,93 67,95.000001 V 94 h 8 v -2.000001 h -8 z"
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.239324px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 66.454546,91.000001 64.000001,93 66.454546,95.000001 V 94 H 73 v -2.000001 h -6.545454 z"
        id="path2341" />
     <image
        width="40"
        height="40"
        preserveAspectRatio="none"
-       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAABHNCSVQICAgIfAhkiAAACqdJREFU
-eJzt14GR7CYQQEHhUv4p4wzubO94xX/qDoAaELuvWNd17Qv+ob3Pvi5rrdH1Tt/vNOd3lunvQdtf
-Tw8AAHxO0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEg
-QNABIEDQASBA0AEgQNABIEDQASDgnl5w7z29JB9Yaz09wledfv+mv8fb9nu607/H6fO9zfTvwwsd
-AAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0A
-AgQdAAIEHQACBB0AAgQdAALupwf4zVrr6RG+au/99AhfNf19p8/v9PmmnX5+nOVt3/f0368XOgAE
-CDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQI
-OgAECDoABAg6AAQIOgAE3E8PAPx3a63R9fbeo+tNO30+eJIXOgAECDoABAg6AAQIOgAECDoABAg6
-AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAE3E8P
-ACfbe4+ut9YaXW96vmmnz/e270GbFzoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAE
-CDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABNxPD/CbvffTI/AHWWs9PcKP
-3OfPnP5938Z9PosXOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6
-AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAE3NMLrrWml4R/bO89ut7p93l6vtPP7/T5Tve2
-/b6NFzoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6
-AAQIOgAECDoABAg6AAQIOgAECDoABNx776dngNdYa42u5/fb5vvyb3ihA0CAoANAgKADQICgA0CA
-oANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICg
-A0DAuq5rTy649+hy11prdD0+M/19aZv+/b7t/vn/O8vp988LHQACBB0AAgQdAAIEHQACBB0AAgQd
-AAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQAC1nVd
-++khvmnv2e2utUbXm/a2/U6bPj/OMn2fT78v9vuZ0/frhQ4AAYIOAAGCDgABgg4AAYIOAAGCDgAB
-gg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAeu6rv30
-ED/Z++jxxq21nh7hq07/vtPfY3q/p9+Xt+132tvO7237neaFDgABgg4AAYIOAAGCDgABgg4AAYIO
-AAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgAB9/SC
-e+/R9dZao+udbvr8Tve273u60+/f6fNNm/59vO383rZfL3QACBB0AAgQdAAIEHQACBB0AAgQdAAI
-EHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACLj33qML
-rrVG1zvd9PlNm/4ep+/39Pne5vT/A/9/n3nbfk+/L17oABAg6AAQIOgAECDoABAg6AAQIOgAECDo
-ABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABCwruvaTw/x
-k72PHm/cWmt0Pef3mbed39u87b6cvt/p+U43fX5e6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQ
-IOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQcE8vuPceXW+t
-Nbre6ZzfZ5zfWU7/HtPzTXP/2qa/rxc6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoA
-BAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AASs67r25IJ7jy53vLXW0yP8
-yPf4zPT5nT7ftNP3e/rv921Ov8/Tpu+fFzoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQI
-OgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABNxPD/Cbtdboenvvo9eb
-3u/0em/j/OB7Tv+9Tf/fT/NCB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AA
-QQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4CAtffeTw/Be621nh7hq6Z/btPnd/rf
-wen35fTzm+b+fWZ6v17oABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQ
-IOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABBwr7WenoE/yN776PWmnf77eNv5Te/39O97
-+vnxmenv64UOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIO
-AAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAH39IJ77+kl+cBa6+kRfjQ93/T9O/0+v+38Tr/P006/
-f3xm+vt6oQNAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANA
-gKADQICgA0CAoANAgKADQICgA0CAoANAwP30AL9Zaz09wlftvZ8eAca87ff7tv1Oe9v5Te/XCx0A
-AgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQAC
-BB0AAgQdAAIEHQACBB0AAu6nB4CTrbVG19t7H73etNPnmzZ9X6ZNfw/7PYsXOgAECDoABAg6AAQI
-OgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6
-AAQIOgAE3E8PAJPWWk+P8KPT59t7j673tv1OM99npu/f6b8PL3QACBB0AAgQdAAIEHQACBB0AAgQ
-dAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACLif
-HuA3e++nR+B/9Lbvu9YaXe9t5zft9O9x+nyne9t+vdABIEDQASBA0AEgQNABIEDQASBA0AEgQNAB
-IEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIGBd17WfHoI/
-x96z12WtNbreNPulZPr+nX5fTv+9TfNCB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEH
-gABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4CAvwE4AmTsqtdzLAAAAABJ
-RU5ErkJggg==
-"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAABHNCSVQICAgIfAhkiAAACqdJREFU eJzt14GR7CYQQEHhUv4p4wzubO94xX/qDoAaELuvWNd17Qv+ob3Pvi5rrdH1Tt/vNOd3lunvQdtf Tw8AAHxO0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEg QNABIEDQASBA0AEgQNABIEDQASDgnl5w7z29JB9Yaz09wledfv+mv8fb9nu607/H6fO9zfTvwwsd AAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0A AgQdAAIEHQACBB0AAgQdAALupwf4zVrr6RG+au/99AhfNf19p8/v9PmmnX5+nOVt3/f0368XOgAE CDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQI OgAECDoABAg6AAQIOgAE3E8PAPx3a63R9fbeo+tNO30+eJIXOgAECDoABAg6AAQIOgAECDoABAg6 AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAE3E8P ACfbe4+ut9YaXW96vmmnz/e270GbFzoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAE CDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABNxPD/CbvffTI/AHWWs9PcKP 3OfPnP5938Z9PosXOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6 AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAE3NMLrrWml4R/bO89ut7p93l6vtPP7/T5Tve2 /b6NFzoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6 AAQIOgAECDoABAg6AAQIOgAECDoABNx776dngNdYa42u5/fb5vvyb3ihA0CAoANAgKADQICgA0CA oANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICg A0DAuq5rTy649+hy11prdD0+M/19aZv+/b7t/vn/O8vp988LHQACBB0AAgQdAAIEHQACBB0AAgQd AAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQAC1nVd ++khvmnv2e2utUbXm/a2/U6bPj/OMn2fT78v9vuZ0/frhQ4AAYIOAAGCDgABgg4AAYIOAAGCDgAB gg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAeu6rv30 ED/Z++jxxq21nh7hq07/vtPfY3q/p9+Xt+132tvO7237neaFDgABgg4AAYIOAAGCDgABgg4AAYIO AAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgAB9/SC e+/R9dZao+udbvr8Tve273u60+/f6fNNm/59vO383rZfL3QACBB0AAgQdAAIEHQACBB0AAgQdAAI EHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACLj33qML rrVG1zvd9PlNm/4ep+/39Pne5vT/A/9/n3nbfk+/L17oABAg6AAQIOgAECDoABAg6AAQIOgAECDo ABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABCwruvaTw/x k72PHm/cWmt0Pef3mbed39u87b6cvt/p+U43fX5e6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQ IOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQcE8vuPceXW+t Nbre6ZzfZ5zfWU7/HtPzTXP/2qa/rxc6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoA BAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AASs67r25IJ7jy53vLXW0yP8 yPf4zPT5nT7ftNP3e/rv921Ov8/Tpu+fFzoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQI OgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABNxPD/Cbtdboenvvo9eb 3u/0em/j/OB7Tv+9Tf/fT/NCB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AA QQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4CAtffeTw/Be621nh7hq6Z/btPnd/rf wen35fTzm+b+fWZ6v17oABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQ IOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABBwr7WenoE/yN776PWmnf77eNv5Te/39O97 +vnxmenv64UOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAGCDgABgg4AAYIO AAGCDgABgg4AAYIOAAGCDgABgg4AAYIOAAH39IJ77+kl+cBa6+kRfjQ93/T9O/0+v+38Tr/P006/ f3xm+vt6oQNAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANAgKADQICgA0CAoANA gKADQICgA0CAoANAgKADQICgA0CAoANAwP30AL9Zaz09wlftvZ8eAca87ff7tv1Oe9v5Te/XCx0A AgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQAC BB0AAgQdAAIEHQACBB0AAu6nB4CTrbVG19t7H73etNPnmzZ9X6ZNfw/7PYsXOgAECDoABAg6AAQI OgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6AAQIOgAECDoABAg6 AAQIOgAE3E8PAJPWWk+P8KPT59t7j673tv1OM99npu/f6b8PL3QACBB0AAgQdAAIEHQACBB0AAgQ dAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACBB0AAgQdAAIEHQACLif HuA3e++nR+B/9Lbvu9YaXe9t5zft9O9x+nyne9t+vdABIEDQASBA0AEgQNABIEDQASBA0AEgQNAB IEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIEDQASBA0AEgQNABIGBd17WfHoI/ x96z12WtNbreNPulZPr+nX5fTv+9TfNCB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEH gABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4AAQQeAAEEHgABBB4CAvwE4AmTsqtdzLAAAAABJ RU5ErkJggg== "
        id="image2353"
        x="21"
        y="57" />
