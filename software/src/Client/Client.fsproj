@@ -7,10 +7,12 @@
     <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
+        <Compile Include="Nav.fs" />
         <Compile Include="About.fs" />
         <Compile Include="Card.fs" />
         <Compile Include="Home.fs" />
         <Compile Include="App.fs" />
+        <Content Include="Public\favicon.png" />
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Fable.Fetch" Version="2.4.0" />

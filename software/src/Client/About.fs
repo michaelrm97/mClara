@@ -1,26 +1,28 @@
 module About
 
+open Elmish
+open Fable.React
+open Fable.React.Props
 open Feliz
-open Feliz.Bulma
+open Fulma
+
 
 let view: ReactElement =
-    Bulma.hero [
-        hero.isFullHeight
-        color.isPrimary
-        prop.children [
-            Bulma.heroBody [
-                Bulma.container [
-                    Bulma.column [
-                        column.is6
-                        column.isOffset3
-                        prop.children [
-                            Bulma.title [
-                                text.hasTextCentered
-                                prop.text "About"
-                            ]
-                        ]
-                    ]
+    div [ ] [
+        Nav.view
+
+        div [
+            Style [
+                Padding "10px"
+            ]
+        ] [
+            h1 [
+                Style [
+                    FontSize 32
+                    Margin "10px"
                 ]
+            ] [
+                str "About"
             ]
         ]
     ]

@@ -2,11 +2,13 @@ module Card
 
 open Elmish
 open Fable.Core
+open Fable.React
 open System
 open Thoth.Fetch
 open Thoth.Json
 
 open Shared
+open Nav
 
 type Model = { Id: string; Card: CardResponse Option; Input: string }
 
@@ -115,6 +117,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
 
 open Feliz
 open Feliz.Bulma
+open Fulma
 
 let private name (model: Model) =
     match model.Card with
@@ -194,22 +197,19 @@ let private containerBox (model: Model) (dispatch: Msg -> unit) =
     ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
-    Bulma.hero [
-        hero.isFullHeight
-        color.isPrimary
-        prop.children [
-            Bulma.heroBody [
-                Bulma.container [
-                    Bulma.column [
-                        column.is6
-                        column.isOffset3
-                        prop.children [
-                            Bulma.title [
-                                text.hasTextCentered
-                                prop.text "Project Clara"
-                            ]
-                            containerBox model dispatch
+    div [ ] [
+        Nav.view
+        Bulma.heroBody [
+            Bulma.container [
+                Bulma.column [
+                    column.is6
+                    column.isOffset3
+                    prop.children [
+                        Bulma.title [
+                            text.hasTextCentered
+                            prop.text "Project Clara"
                         ]
+                        containerBox model dispatch
                     ]
                 ]
             ]
