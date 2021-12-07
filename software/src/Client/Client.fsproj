@@ -7,14 +7,17 @@
     <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
+        <Compile Include="PendingOption.fs" />
         <Compile Include="Nav.fs" />
         <Compile Include="About.fs" />
         <Compile Include="Card.fs" />
         <Compile Include="Home.fs" />
         <Compile Include="App.fs" />
+        <Content Include="public\GitHub-Mark-64px.png" />
         <Content Include="Public\favicon.png" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Fable.DateFunctions" Version="3.8.1" />
       <PackageReference Include="Fable.Fetch" Version="2.4.0" />
       <PackageReference Include="Fable.Promise" Version="3.1.3" />
       <PackageReference Include="Thoth.Fetch" Version="3.0.1" />

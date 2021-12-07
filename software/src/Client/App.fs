@@ -82,8 +82,9 @@ let update (msg : Msg) (model : Model) =
         let (cardModel, cardCmd) = Card.update cardMsg cardModel
         let title =
             match cardModel.Card with
-            | None -> sprintf "Project Clara | %s" cardModel.Id
-            | Some c -> sprintf "Project Clara | %s" c.Name
+            | PendingOption.Some c -> sprintf "Project Clara | %s" c.Name
+            | PendingOption.None -> sprintf "Project Clara | Not Found"
+            | PendingOption.Pending -> sprintf "Project Clara | %s" cardModel.Id
         { model with ActivePage = Page.Card cardModel }, Cmd.batch [
             Cmd.map CardMsg cardCmd
             Cmd.setTitle title
@@ -92,10 +93,13 @@ let update (msg : Msg) (model : Model) =
         model, Cmd.none
 
 let view (model : Model) (dispatch : Dispatch<Msg>) =
-    match model.ActivePage with
-    | Page.Home homeModel -> Home.view homeModel (HomeMsg >> dispatch)
-    | Page.About -> About.view
-    | Page.Card cardModel -> Card.view cardModel (CardMsg >> dispatch)
+    Fable.React.Standard.div [ ] [
+        Nav.view
+        match model.ActivePage with
+        | Page.Home homeModel -> Home.view homeModel (HomeMsg >> dispatch)
+        | Page.About -> About.view
+        | Page.Card cardModel -> Card.view cardModel (CardMsg >> dispatch)
+    ]
 
 // App
 Program.mkProgram init update view

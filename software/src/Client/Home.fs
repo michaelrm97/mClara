@@ -6,8 +6,6 @@ open Fable.React
 open Feliz
 open Fulma
 
-open Nav
-
 type Model = { Input: string }
 
 type Msg =
@@ -31,28 +29,26 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
 let view (model: Model) (dispatch: Msg -> unit) : ReactElement =
     div [
         Style [
+            Padding "10px"
             FontSize 16
+            MaxWidth "600px"
+            Margin "auto"
         ]
     ] [
-        Nav.view
-
-        div [
+        h1 [
+            Style [ ]
+        ] [
+            str "Welcome to Project Clara"
+        ]
+        section [
             Style [
-                Padding "10px"
+                FontSize "16px"
             ]
         ] [
-            section [
-                Style [
-                    Margin "10px"
-                ]
-            ] [
-                str "Welcome to Project Clara"
-                br [ ]
-                str "Scan the QR code at the back of your card or enter the 5 character code below:"
-            ]
+            str "Scan the QR code at the back of your card or enter the 5 character code below:"
             form [
                 Style [
-                    Margin "10px"
+                    MarginTop "10px"
                 ]
             ] [
                 Input.text [

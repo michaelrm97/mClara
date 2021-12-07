@@ -6,12 +6,10 @@ open Feliz
 open Fulma
 
 let view: ReactElement =
-    div [
-        Style [
-            FontSize 20
-        ]
-    ] [
-        Navbar.navbar [ Navbar.Color IsPrimary ] [
+    div [ ] [
+        Navbar.navbar [
+            Navbar.Color IsPrimary
+        ] [
             Navbar.Brand.div [ ] [
                 Navbar.Item.a [
                     Navbar.Item.Props [ Href "/" ]
@@ -20,7 +18,13 @@ let view: ReactElement =
                         Style [ PaddingRight "10px" ]
                         Src "favicon.png"
                     ]
-                    str "Project Clara"
+                    div [
+                        Style [
+                            FontSize "24px"
+                        ]
+                    ] [
+                        str "Project Clara"
+                    ]
                 ]
             ]
             Navbar.End.div [ ] [

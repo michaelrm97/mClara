@@ -4,7 +4,6 @@ open System
 open System.Drawing
 open System.IO
 open System.Management.Automation
-open System.Security.Cryptography
 open System.Threading.Tasks
 open QRCoder
 
@@ -228,8 +227,7 @@ type GetCard () =
         match x.ParameterSetName with
         | "UsingId" ->
             x.Id <- x.Id.ToUpper()
-            //x.WriteObject (sprintf "Getting card with id %s" x.Id)
-        | "UsingName" -> ()//x.WriteObject (sprintf "Getting card with name %s" x.Name)
+        | "UsingName" -> ()
         | _ ->
             x.WriteWarning "Invalid parameter set name"
             x.StopProcessing()

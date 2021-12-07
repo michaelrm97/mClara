@@ -48,7 +48,7 @@ let cardsApi: ICardApi = {
         | None -> return Error (404, { ErrorCode = "Not Found"; Message = sprintf "Could not find card with id %s" id })
     }
     comment = fun (id: string) (body: CommentRequest) -> async {
-        if String.IsNullOrWhiteSpace body.Comment || String.length body.Comment > 1024 then
+        if String.length body.Comment > 1024 then
             return Error (400, { ErrorCode = "Bad Request"; Message = "Invalid comment" })
             else
                 let currentTime = DateTimeOffset.UtcNow

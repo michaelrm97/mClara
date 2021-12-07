@@ -2,21 +2,23 @@ module Card
 
 open Elmish
 open Fable.Core
-open Fable.React
 open System
 open Thoth.Fetch
 open Thoth.Json
 
+open PendingOption
 open Shared
-open Nav
 
-type Model = { Id: string; Card: CardResponse Option; Input: string }
+type Model = { Id: string; Card: CardResponse PendingOption; Input: string Option }
 
 type Msg =
     | GotCard of Result<CardResponse, int * ErrorResponse>
     | SetInput of string
+    | EditComment
+    | DeleteComment
+    | Reset
     | Comment
-    | Commented of Result<CommentResponse, int * ErrorResponse>
+    | Commented of Result<CommentResponse, int * ErrorResponse> * string
 
 let private asString (o: JsonValue): string = unbox o
 
@@ -79,7 +81,7 @@ let private cardsApi: ICardApi = {
 }    
 
 let init (id: string) : Model * Cmd<Msg> =
-    let model = { Id = id; Card = None; Input = "" }
+    let model = { Id = id; Card = Pending; Input = Option.Some "" }
 
     let cmd =
         Cmd.OfAsync.perform cardsApi.getCard model.Id GotCard
@@ -90,128 +92,189 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg with
     | GotCard response ->
         (match response with
-        | Ok c -> { model with Card = Some c }
+        | Ok c ->
+            { model with Card = Some c
+                         Input =
+                            if String.IsNullOrEmpty c.Comment then
+                                Option.Some ""
+                            else Option.None }
         | Error (status, e) ->
             printfn "Received error response: %d %s" status e.Message
             { model with Card = None }), Cmd.none
     | SetInput value ->
-        { model with Input = value }, Cmd.none
-    | Comment ->
-        printfn "You are here"
-        let req = { Comment = model.Input }
+        { model with Input = Option.Some value }, Cmd.none
+    | EditComment ->
+        { model with Input =
+                        match model.Card with
+                        | Some c -> if String.IsNullOrEmpty c.Comment then Option.Some "" else Option.Some c.Comment
+                        | _ -> Option.None}, Cmd.none
+    | DeleteComment ->
+        let req = { Comment = null }
         let cmd =
-            Cmd.OfAsync.perform (cardsApi.comment model.Id) req Commented
+            Cmd.OfAsync.perform (
+                fun r -> async {
+                    let! result = cardsApi.comment model.Id r
+                    return (result, null)
+                }) req Commented
 
         model, cmd
-    | Commented response ->
+    | Reset ->
+        { model with Input =
+                        match model.Card with
+                        | Some c ->
+                            printfn "%s" c.Comment
+                            if String.IsNullOrEmpty c.Comment then
+                                Option.Some ""
+                            else Option.None
+                        | _ -> Option.None }, Cmd.none
+    | Comment ->
+        match model.Input with
+        | Option.Some i ->
+            let req = { Comment = i }
+            let cmd =
+                Cmd.OfAsync.perform (
+                    fun r -> async {
+                        let! result = cardsApi.comment model.Id r
+                        return (result, i)
+                    }) req Commented
+
+            model, cmd
+        | Option.None -> model, Cmd.none
+    | Commented (response, comment) ->
         (match response with
         | Ok c ->
             { model with Card =
                             (match model.Card with
-                            | None -> None
                             | Some m -> Some {
-                                m with CommentLastModified = Nullable c.CommentLastModified; Comment = model.Input }) }
+                                m with CommentLastModified = Nullable c.CommentLastModified
+                                       Comment = comment }
+                            | _ -> model.Card)
+                         Input = if String.IsNullOrEmpty comment then Option.Some "" else Option.None
+            }
         | Error (status, e) ->
             printfn "Received error response: %d %s" status e.Message
             model), Cmd.none
 
-open Feliz
-open Feliz.Bulma
+open Fable.DateFunctions
+open Fable.React
+open Fable.React.Props
 open Fulma
 
-let private name (model: Model) =
-    match model.Card with
-    | None -> ""
-    | Some m -> m.Name
-
-let private content (model: Model) =
-    match model.Card with
-    | None -> ""
-    | Some m -> m.Content
-
-let private comment (model: Model) =
-    match model.Card with
-    | None -> ""
-    | Some m -> m.Comment
-
-let private reply (model: Model) =
-    match model.Card with
-    | None -> ""
-    | Some m -> m.Reply
-    
-let private commentLastModified (model: Model) =
-    match model.Card with
-    | None -> ""
-    | Some m -> if m.CommentLastModified.HasValue then m.CommentLastModified.Value.ToLocalTime().ToString()
-                else ""
-    
-let private replyLastModified (model: Model) =
-    match model.Card with
-    | None -> ""
-    | Some m -> if m.ReplyLastModified.HasValue then m.ReplyLastModified.Value.ToLocalTime().ToString()
-                else ""
-
-let private containerBox (model: Model) (dispatch: Msg -> unit) =
-    Bulma.box [
-        Bulma.content [
-            prop.text (sprintf "Name: %s" (name model))
+let commentSection (model: Model) (dispatch: Msg -> unit) =
+    div [
+        Style [
+            PaddingTop "10px"
         ]
-        Bulma.content [
-            prop.text (sprintf "Content: %s" (content model))
-        ]
-        Bulma.content [
-            prop.text (sprintf "Comment: %s" (comment model))
-        ]
-        Bulma.content [
-            prop.text (sprintf "Reply: %s" (reply model))
-        ]
-        Bulma.content [
-            prop.text (sprintf "Comment last modified: %s" (commentLastModified model))
-        ]
-        Bulma.content [
-            prop.text (sprintf "Reply last modified: %s" (replyLastModified model))
-        ]
-        Bulma.field.div [
-            field.isGrouped
-            prop.children [
-                Bulma.control.p [
-                    control.isExpanded
-                    prop.children [
-                        Bulma.input.text [
-                            prop.value model.Input
-                            prop.placeholder "Add a comment"
-                            prop.onChange (fun x -> SetInput x |> dispatch)
+    ] [
+        match model.Card with
+        | Some c ->
+            match model.Input with
+            | Option.Some i ->
+                Textarea.textarea [
+                    Textarea.Option.Placeholder "Write a response..."
+                    Textarea.Option.Value i
+                    Textarea.Option.Props [
+                        Style [
+                            VerticalAlign "text-bottom"
+                            MarginRight "10px"
+                            Height "90px"
                         ]
                     ]
-                ]
-                Bulma.control.p [
-                    Bulma.button.a [
-                        color.isPrimary
-                        prop.disabled (Comment.isValid model.Input |> not)
-                        prop.onClick (fun _ -> dispatch Comment)
-                        prop.text "Add"
+                    Textarea.Option.OnChange (fun x -> SetInput x.Value |> dispatch )
+                ] [ ]
+                Button.button [
+                    Button.Color IsPrimary
+                    Button.Props [
+                        Style [
+                            Float FloatOptions.Right
+                            MarginTop "10px"
+                        ]
                     ]
+                    Button.OnClick (fun _ -> Comment |> dispatch)
+                    Button.Disabled (String.IsNullOrEmpty i || i = c.Comment)
+                ] [
+                    str "Send"
                 ]
-            ]
-        ]
+                Button.button [
+                    Button.Color IsDanger
+                    Button.Props [
+                        Style [
+                            Float FloatOptions.Right
+                            MarginTop "10px"
+                            MarginRight "10px"
+                        ]
+                    ]
+                    Button.OnClick (fun _ -> Reset |> dispatch)
+                ] [
+                    str "Reset"
+                ]
+            | Option.None ->
+                div [
+                    Style [
+                        Padding "10px"
+                        BorderStyle "solid"
+                        BorderWidth "1px"
+                    ]
+                ] [
+                    div [ ] [
+                        i [
+                            Style [
+                                Float FloatOptions.Left
+                            ]
+                        ] [
+                            sprintf "%s wrote on %s" c.DisplayName
+                                (if c.CommentLastModified.HasValue then
+                                    ExternalDateFns.formatWithStr (c.CommentLastModified.Value.ToLocalTime()) "yyyy-MM-dd hh:mm"
+                                else "")
+                            |> str
+                        ]
+                        i [
+                            Style [
+                                Float FloatOptions.Right
+                                MarginLeft "10px"
+                                Cursor "pointer"
+                            ]
+                            Class "fas fa-trash"
+                            OnClick (fun _ -> DeleteComment |> dispatch)
+                        ] [ ]
+                        i [
+                            Style [
+                                Float FloatOptions.Right
+                                Cursor "pointer"
+                            ]
+                            Class "fas fa-edit"
+                            OnClick (fun _ -> EditComment |> dispatch)
+                        ] [ ]
+                    ]
+                    br [ ]
+                    str c.Comment
+                ]
+        | _ -> div [ ] [ ]
     ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
-    div [ ] [
-        Nav.view
-        Bulma.heroBody [
-            Bulma.container [
-                Bulma.column [
-                    column.is6
-                    column.isOffset3
-                    prop.children [
-                        Bulma.title [
-                            text.hasTextCentered
-                            prop.text "Project Clara"
-                        ]
-                        containerBox model dispatch
-                    ]
-                ]
-            ]
+    div [
+        Style [
+            Padding "10px"
+            MaxWidth "600px"
+            Margin "auto"
         ]
+    ] [
+        match model.Card with
+        | None ->
+            h1 [ ] [
+                str "Card not found"
+            ]
+        | Pending ->
+            h1 [ ] [
+                str "Loading..."
+            ]
+        | Some c ->
+            div [ ] [
+                h1 [ ] [
+                    str c.Name
+                ]
+                str c.Content
+                commentSection model dispatch
+            ]
     ]
