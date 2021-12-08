@@ -53,14 +53,14 @@ type ClaraMgmtPSCmdlet () =
         let tokens = folderName.Split('-')
         if tokens.Length <> 2 then invalidArg "folderName" "Invalid folder name"
         else
-            let id = (tokens.[0]).Trim()
-            let (name, displayName) = x.GetNameAndDisplayName ((tokens.[1]).Trim())
+            let id = (tokens.[1]).Trim()
+            let (name, displayName) = x.GetNameAndDisplayName ((tokens.[0]).Trim())
             match id with
             | "#" -> { Id = None; Name = name; DisplayName = displayName }
             | _ -> { Id = Some id; Name = name; DisplayName = displayName }
 
     member x.GetFolderName (id: string) (name: string) (displayName: string): string =
-        sprintf "%s - %s (%s)" id name displayName
+        sprintf "%s (%s) - %s" name displayName id
 
     member x.ExportSingleCard (outputPath: string) (qrCode: bool) (card: Card) : Unit =
         let dirInfo = Directory.CreateDirectory (Path.Join (x.GetPath outputPath, x.GetFolderName card.Id card.Name card.DisplayName))
@@ -179,7 +179,7 @@ type ClearClaraDB () =
         else ()
         if x.Logs.IsPresent then
             x.WriteObject "Clearing logs container"
-            x.store.clearCardsContainer().Result
+            x.store.clearLogsContainer().Result
         else ()
 
 [<Cmdlet(VerbsCommon.Clear, "Logs")>]
@@ -450,12 +450,12 @@ type ImportCards () =
             let actualPath = x.GetPath x.Path
             x.root <- Path.GetPathRoot actualPath
             x.paths <- Path.GetDirectoryName actualPath :: []
-            x.WriteObject (sprintf "Importing card at %s" x.Path)
+            x.WriteObject (sprintf "Importing card from %s" x.Path)
         | "MultipleCards" ->
             let actualPath = x.GetPath x.RootPath
             x.root <- actualPath
             x.paths <- Directory.GetDirectories actualPath |> List.ofArray |> List.map Path.GetFileName
-            x.WriteObject (sprintf "Importing %d cards at %s" (List.length x.paths) x.RootPath)
+            x.WriteObject (sprintf "Importing %d cards from %s" (List.length x.paths) x.RootPath)
         | _ ->
             x.WriteWarning "Invalid parameter set name"
             x.StopProcessing()
