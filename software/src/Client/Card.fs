@@ -253,7 +253,13 @@ let commentSection (model: Model) (dispatch: Msg -> unit) =
                         ] [ ]
                     ]
                     br [ ]
-                    str c.Comment
+                    div [
+                        Style [
+                            WhiteSpace WhiteSpaceOptions.PreWrap
+                        ]
+                    ] [
+                        str c.Comment
+                    ]
                 ]
         ]
         | _ -> div [ ] [ ]
@@ -286,7 +292,13 @@ let replySection (model: Model) (dispatch: Msg -> unit) =
                         |> str
                     ]
                     br [ ]
-                    str c.Reply
+                    div [
+                        Style [
+                            WhiteSpace WhiteSpaceOptions.PreWrap
+                        ]
+                    ] [
+                        str c.Reply
+                    ]
                 ]
             ]
     | _ -> div [ ] [ ]
@@ -313,7 +325,13 @@ let view (model: Model) (dispatch: Msg -> unit) =
                 h1 [ ] [
                     str c.Name
                 ]
-                str c.Content
+                div [
+                    Style [
+                        WhiteSpace WhiteSpaceOptions.PreWrap
+                    ]
+                ] [
+                    str c.Content
+                ]
                 commentSection model dispatch
                 replySection model dispatch
             ]

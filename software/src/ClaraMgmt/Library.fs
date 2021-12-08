@@ -84,7 +84,9 @@ type ClaraMgmtPSCmdlet () =
         else ()
 
     member x.GetPath (path: string): string =
-        if Path.IsPathFullyQualified path then path else Path.Join (x.SessionState.Path.CurrentFileSystemLocation.Path, path)
+        let trimmedPath = path.Trim [| '.'; '/'; '\\' |]
+        if Path.IsPathFullyQualified trimmedPath then trimmedPath
+        else Path.Join (x.SessionState.Path.CurrentFileSystemLocation.Path, trimmedPath)
 
     // Related to getting Cosmos DB connection string
     [<Parameter>]
@@ -448,8 +450,8 @@ type ImportCards () =
         match x.ParameterSetName with
         | "SingleCard" ->
             let actualPath = x.GetPath x.Path
-            x.root <- Path.GetPathRoot actualPath
-            x.paths <- Path.GetDirectoryName actualPath :: []
+            x.root <- (Directory.GetParent actualPath).ToString()
+            x.paths <- Path.GetFileName actualPath :: []
             x.WriteObject (sprintf "Importing card from %s" x.Path)
         | "MultipleCards" ->
             let actualPath = x.GetPath x.RootPath
@@ -608,8 +610,8 @@ type SyncCards () =
         match x.ParameterSetName with
         | "SingleCard" ->
             let actualPath = x.GetPath x.Path
-            x.root <- Path.GetPathRoot actualPath
-            x.paths <- Path.GetDirectoryName actualPath :: []
+            x.root <- (Directory.GetParent actualPath).ToString()
+            x.paths <- Path.GetFileName actualPath :: []
             x.WriteObject (sprintf "Syncing card at %s" x.Path)
         | "MultipleCards" ->
             let actualPath = x.GetPath x.RootPath
