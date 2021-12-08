@@ -4,6 +4,7 @@ open Farmer
 open Farmer.Builders
 
 open Helpers
+open Store
 
 initializeContext()
 
@@ -27,19 +28,25 @@ Target.create "Bundle" (fun _ ->
 
 type Region = {
     Name: string
+    RegionName: string
     Location: Location
 }
 
 Target.create "Azure" (fun _ ->
+    let connectionString = (Secrets.getConnectionString false "https://clara-keys.vault.azure.net/" "ConnectionString" true).Result
+
     let regions: Region list = [
         {
-            Name = "clara-wcus"
-            Location = Location.WestCentralUS
+            Name = "clara-wus2"
+            RegionName = "West US 2"
+            Location = Location.WestUS2
         }
         {
             Name = "clara-aue"
+            RegionName = "Australia East"
             Location = Location.AustraliaEast
-        }]
+        }
+    ]
 
     let deployments = regions |> List.map (fun (region: Region) ->
         arm {
@@ -48,6 +55,17 @@ Target.create "Azure" (fun _ ->
                 name region.Name
                 zip_deploy "deploy"
                 sku (WebApp.Basic "B1")
+                operating_system OS.Linux
+                runtime_stack Runtime.DotNet50
+                automatic_logging_extension false
+                app_insights_off
+                settings [
+                    "Region", region.RegionName
+                    "ConnectionString", connectionString
+                    "Port", "8080"
+                ]
+                system_identity
+                https_only
             })
         })
 

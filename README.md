@@ -10,4 +10,4 @@ There are three components of this:
 
 - PCB with an LED light array in the shape of a Christmas card
 - Laser cut plywood covers glued to the back and front of the PCB. The front contains a Christmas tree graphic and the back contains a festive greeting with a QR code linking to a personal message
-- Web app hosting the card message
+- Web app hosting the card message. See [README](./software/README.md)

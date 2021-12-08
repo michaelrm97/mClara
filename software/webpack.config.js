@@ -25,6 +25,11 @@ var CONFIG = {
         '/api/**': {
             target: 'http://localhost:' + (process.env.SERVER_PROXY_PORT || "8085"),
                changeOrigin: true
+        },
+        // redirect /health to the server on port 8085
+        '/health': {
+            target: 'http://localhost:' + (process.env.SERVER_PROXY_PORT || "8085"),
+               changeOrigin: true
            },
         // redirect websocket requests that start with /socket/ to the server on the port 8085
         '/socket/**': {

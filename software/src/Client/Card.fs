@@ -161,52 +161,58 @@ open Fable.React.Props
 open Fulma
 
 let commentSection (model: Model) (dispatch: Msg -> unit) =
-    div [
-        Style [
-            PaddingTop "10px"
-        ]
-    ] [
-        match model.Card with
-        | Some c ->
+    match model.Card with
+    | Some c ->
+        div [
+            Style [
+                PaddingTop "10px"
+            ]
+        ] [
             match model.Input with
             | Option.Some i ->
-                Textarea.textarea [
-                    Textarea.Option.Placeholder "Write a response..."
-                    Textarea.Option.Value i
-                    Textarea.Option.Props [
-                        Style [
-                            VerticalAlign "text-bottom"
-                            MarginRight "10px"
-                            Height "90px"
-                        ]
+                div [
+                    Style [
+                        OverflowY OverflowOptions.Auto
                     ]
-                    Textarea.Option.OnChange (fun x -> SetInput x.Value |> dispatch )
-                ] [ ]
-                Button.button [
-                    Button.Color IsPrimary
-                    Button.Props [
-                        Style [
-                            Float FloatOptions.Right
-                            MarginTop "10px"
-                        ]
-                    ]
-                    Button.OnClick (fun _ -> Comment |> dispatch)
-                    Button.Disabled (String.IsNullOrEmpty i || i = c.Comment)
                 ] [
-                    str "Send"
-                ]
-                Button.button [
-                    Button.Color IsDanger
-                    Button.Props [
-                        Style [
-                            Float FloatOptions.Right
-                            MarginTop "10px"
-                            MarginRight "10px"
+                    Textarea.textarea [
+                        Textarea.Option.Placeholder "Write a response..."
+                        Textarea.Option.Value i
+                        Textarea.Option.Props [
+                            Style [
+                                VerticalAlign "text-bottom"
+                                MarginRight "10px"
+                                Height "90px"
+                            ]
                         ]
+                        Textarea.Option.OnChange (fun x -> SetInput x.Value |> dispatch )
+                    ] [ ]
+                    Button.button [
+                        Button.Color IsPrimary
+                        Button.Props [
+                            Style [
+                                Float FloatOptions.Right
+                                MarginTop "10px"
+                            ]
+                        ]
+                        Button.OnClick (fun _ -> Comment |> dispatch)
+                        Button.Disabled (String.IsNullOrEmpty i || i = c.Comment)
+                    ] [
+                        str "Send"
                     ]
-                    Button.OnClick (fun _ -> Reset |> dispatch)
-                ] [
-                    str "Reset"
+                    Button.button [
+                        Button.Color IsDanger
+                        Button.Props [
+                            Style [
+                                Float FloatOptions.Right
+                                MarginTop "10px"
+                                MarginRight "10px"
+                            ]
+                        ]
+                        Button.OnClick (fun _ -> Reset |> dispatch)
+                    ] [
+                        str "Reset"
+                    ]
                 ]
             | Option.None ->
                 div [
@@ -225,7 +231,7 @@ let commentSection (model: Model) (dispatch: Msg -> unit) =
                             sprintf "%s wrote on %s" c.DisplayName
                                 (if c.CommentLastModified.HasValue then
                                     ExternalDateFns.formatWithStr (c.CommentLastModified.Value.ToLocalTime()) "yyyy-MM-dd hh:mm"
-                                else "")
+                                    else "")
                             |> str
                         ]
                         i [
@@ -249,8 +255,41 @@ let commentSection (model: Model) (dispatch: Msg -> unit) =
                     br [ ]
                     str c.Comment
                 ]
+        ]
         | _ -> div [ ] [ ]
-    ]
+
+let replySection (model: Model) (dispatch: Msg -> unit) =
+    match model.Card with
+    | Some c ->
+        if String.IsNullOrEmpty c.Reply then
+            div [ ] [ ]
+        else
+            div [
+                Style [
+                    PaddingTop "10px"
+                ]
+            ] [
+                div [
+                    Style [
+                        Padding "10px"
+                        BorderStyle "solid"
+                        BorderWidth "1px"
+                        BorderColor "gray"
+                        TextAlign TextAlignOptions.Right
+                    ]
+                ] [
+                    i [ ] [
+                        sprintf "Michael wrote on %s"
+                            (if c.ReplyLastModified.HasValue then
+                                ExternalDateFns.formatWithStr (c.ReplyLastModified.Value.ToLocalTime()) "yyyy-MM-dd hh:mm"
+                                else "")
+                        |> str
+                    ]
+                    br [ ]
+                    str c.Reply
+                ]
+            ]
+    | _ -> div [ ] [ ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
     div [
@@ -276,5 +315,6 @@ let view (model: Model) (dispatch: Msg -> unit) =
                 ]
                 str c.Content
                 commentSection model dispatch
+                replySection model dispatch
             ]
     ]

@@ -27,6 +27,12 @@ let region =
     | true -> "Local"
     | false -> config.["Region"]
 
+// Get port
+let port =
+    match (String.IsNullOrEmpty config.["Port"]) with
+    | true -> 8085
+    | false -> int config.["Port"]
+
 // Get connection string
 // First try configuration, otherwise check KeyVault
 let connectionString =
@@ -88,12 +94,13 @@ let cardApiRouter = router {
 
 let webApp = router {
     forward "/api/cards" cardApiRouter
-    get "health" health
+    get "/health" health
+    not_found_handler (htmlFile "public/index.html")
 }
 
 let app =
     application {
-        url "http://0.0.0.0:8085"
+        url (sprintf "http://0.0.0.0:%d" port)
         use_router webApp
         memory_cache
         use_static "public"
