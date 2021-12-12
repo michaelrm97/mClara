@@ -59,7 +59,10 @@ let cardsApi: ICardApi = {
             else
                 let currentTime = DateTimeOffset.UtcNow
                 match! (store.addComment id body.Comment currentTime |> Async.AwaitTask) with
-                | true -> return Ok { CommentLastModified = currentTime }
+                | true ->
+                    // Log event
+                    store.addLog "COMMENT" id DateTimeOffset.UtcNow region |> ignore
+                    return Ok { CommentLastModified = currentTime }
                 | false -> return Error (404, { ErrorCode = "Not Found"; Message = sprintf "Could not find card with id %s" id })
     }
 }
