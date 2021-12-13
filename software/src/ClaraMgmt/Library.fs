@@ -384,13 +384,28 @@ type GetLogs () =
     [<Parameter>]
     member val Region: string = null with get, set
 
+    [<Parameter>]
+    member val GetNames: SwitchParameter = new SwitchParameter (false) with get, set
+
     override x.BeginProcessing () =
         base.BeginProcessing ()
         //x.WriteObject "Getting logs"
 
     override x.ProcessRecord () =
         let result = (x.store.getLogs x.Operation x.CardId x.Region).Result
-        x.WriteObject (result, true)
+        if x.GetNames.IsPresent then
+            let cards = x.store.listCards().Result
+            let cardsDict = new Dictionary<string, string> ()
+            List.map (fun (c: Card) -> cardsDict.Add (c.Id, c.Name)) cards |> ignore
+            let resultWithNames =
+                List.map
+                    (fun (log: Log) ->
+                        match cardsDict.ContainsKey(log.CardId) with
+                        | true -> {| log with Name = cardsDict.[log.CardId] |}
+                        | false -> {| log with Name = "Not Found" |})
+                    result
+            x.WriteObject (resultWithNames, true)
+        else x.WriteObject (result, true)
 
 [<Cmdlet(VerbsCommon.Get, "QRCode")>]
 type GetQRCode () =
