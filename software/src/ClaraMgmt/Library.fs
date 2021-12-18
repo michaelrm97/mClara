@@ -738,9 +738,10 @@ type SyncCards () =
         if x.ParameterSetName = "MultipleCards" && x.Remove.IsPresent then
             cardsDict.Keys
             |> Seq.iter (fun id -> (x.store.deleteCard id).Result |> ignore)
-        else
+        else if x.ParameterSetName = "MultipleCards" then
             cardsDict.Values
             |> Seq.iter (x.ExportSingleCard x.root true)
+        else ()
 
 [<Cmdlet(VerbsData.Import, "Logs")>]
 type ImportLogs () =
