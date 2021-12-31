@@ -41,11 +41,6 @@ Target.create "Azure" (fun _ ->
             RegionName = "West US 2"
             Location = Location.WestUS2
         }
-        {
-            Name = "clara-aue"
-            RegionName = "Australia East"
-            Location = Location.AustraliaEast
-        }
     ]
 
     let deployments = regions |> List.map (fun (region: Region) ->

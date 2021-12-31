@@ -21,11 +21,13 @@ type Page =
     | Home of Home.Model
     | About
     | Card of Card.Model
+    | Hedgehog
 
 type Route =
     | Home
     | About
     | Card of string
+    | Hedgehog
 
 type Model =
     { ActivePage : Page
@@ -38,6 +40,7 @@ type Msg =
 let parser =
     oneOf [ map About (s "about")
             map Home (s "home")
+            map Hedgehog (s "hedgehog")
             map Home top
             map Card str ]
     |> parsePath
@@ -54,6 +57,7 @@ let private setRoute (optRoute: Route option) (model: Model) =
             Cmd.map HomeMsg homeCmd
             Cmd.setTitle "Project Clara | Home"
         ]
+    | Some Hedgehog -> { CurrentRoute = optRoute.Value; ActivePage = Page.Hedgehog }, Cmd.setTitle "Project Clara | Hedgehog"
     | None -> model, Navigation.modifyUrl "/"
 
 let init (location : Route option) =
@@ -89,6 +93,8 @@ let update (msg : Msg) (model : Model) =
             Cmd.map CardMsg cardCmd
             Cmd.setTitle title
         ]
+    | Page.Hedgehog, _ ->
+        { model with ActivePage = Page.Hedgehog }, Cmd.none
     | _ -> // Invalid message, just ignore
         model, Cmd.none
 
@@ -99,6 +105,7 @@ let view (model : Model) (dispatch : Dispatch<Msg>) =
         | Page.Home homeModel -> Home.view homeModel (HomeMsg >> dispatch)
         | Page.About -> About.view
         | Page.Card cardModel -> Card.view cardModel (CardMsg >> dispatch)
+        | Page.Hedgehog -> Hedgehog.view
     ]
 
 // App

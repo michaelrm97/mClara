@@ -5,6 +5,7 @@
         <DefineConstants>FABLE_COMPILER</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="Hedgehog.fs" />
         <None Include="index.html" />
         <None Include="paket.references" />
         <Compile Include="PendingOption.fs" />
